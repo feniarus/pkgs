@@ -23,8 +23,24 @@ steps:
       - |
         cd SOURCES/mlnx-ofed-kernel-*
 
-        ./configure --all \
-         --kernel-sources=/src \
+        ./configure --with-core-mod \
+          --with-user_mad-mod \
+          --with-user_access-mod \
+          --with-addr_trans-mod \
+          --with-mlx5-mod \
+          --with-ipoib-mod \
+          --with-mlxfw-mod \
+          --with-srp-mod \
+          --with-iser-mod \
+          --with-isert-mod \
+          --with-gds\ 
+          --with-mlxdevm-mod \
+          --with-mlx5-ipsec \
+          --with-sf-cfg-drv \
+          --with-memtrack \
+          --without-nvmf_host-mod \
+          --without-nvmf_target-mod \
+          --kernel-sources=/src \
          -j $(nproc)
 
         make kernel -j $(nproc)
