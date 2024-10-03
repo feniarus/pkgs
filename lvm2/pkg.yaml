@@ -4,7 +4,8 @@ shell: /toolchain/bin/bash
 dependencies:
   - stage: base
   - stage: libaio
-  - stage: eudev
+  - stage: systemd-udevd
+  - stage: libcap # dependency for libudev
   - stage: util-linux
 steps:
   - sources:
@@ -12,6 +13,8 @@ steps:
         destination: lvm2.tar.gz
         sha256: "{{ .lvm2_sha256 }}"
         sha512: "{{ .lvm2_sha512 }}"
+    env:
+      LIBS: -lcap
     prepare:
       - |
         tar -xzf lvm2.tar.gz --strip-components=1
@@ -23,6 +26,8 @@ steps:
         export PKG_CONFIG_PATH=/usr/lib/pkgconfig
 
         ./configure \
+             --with-default-run-dir=/run/lvm \
+             --with-default-locking-dir=/run/lock/lvm \
              --with-thin=internal \
              --with-cache=none \
              --disable-udev-systemd-background-jobs \
@@ -94,6 +99,9 @@ steps:
     install:
       - |
         make DESTDIR=/rootfs install
+
+        # LVM activation is handled by Talos itself
+        rm -f /rootfs/usr/lib/udev/rules.d/69-dm-lvm.rules
 finalize:
   - from: /rootfs
     to: /
